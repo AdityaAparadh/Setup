@@ -28,7 +28,7 @@ print_failure() {
 # Required Packages
 # -------------------------------------------------------------------
 print_step "Installing required packages"
-sudo apt update && sudo apt install -y neovim git curl unzip gh || print_failure "Package installation"
+sudo apt update && sudo apt install -y neovim git curl unzip gh dconf-cli || print_failure "Package installation"
 clear
 print_success "Package installation"
 
@@ -37,6 +37,7 @@ print_success "Package installation"
 # -------------------------------------------------------------------
 print_step "Installing keyd"
 mkdir -p ~/clone && cd ~/clone || print_failure "Failed to create ~/clone directory"
+rm -rf ~/clone/keyd
 git clone https://github.com/rvaiya/keyd || print_failure "Failed to clone keyd repository"
 cd keyd || print_failure "Failed to enter keyd directory"
 make && sudo make install || print_failure "Failed to build and install keyd"
@@ -74,7 +75,7 @@ done
 KEYBINDINGS_URL="https://github.com/AdityaAparadh/Setup/releases/download/alpha/keybindings.dconf"
 TEMP_FILE="/tmp/keybindings.dconf"
 
-curl -o "$TEMP_FILE" "$KEYBINDINGS_URL" || print_failure "Failed to download GNOME keybindings"
+curl -L -o "$TEMP_FILE" "$KEYBINDINGS_URL" || print_failure "Failed to download GNOME keybindings"
 dconf load /org/gnome/desktop/wm/keybindings/ < "$TEMP_FILE" || print_failure "Failed to apply GNOME keybindings"
 rm "$TEMP_FILE" || print_failure "Failed to remove temporary file"
 clear

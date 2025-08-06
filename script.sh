@@ -41,11 +41,14 @@ print_success "Package installation"
 print_step "Installing neovim"
 
 sudo apt update && sudo apt install -y git curl unzip gh dconf-cli || print_failure "Package installation"
+
+rm -rf ~/.config/nvim
+curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
 sudo rm -rf /opt/nvim
 sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz
-export PATH="$PATH:/opt/nvim-linux-x86_64/bin" >> ~/.bashrc
-export PATH="$PATH:/opt/nvim-linux-x86_64/bin" >> ~/.zshrc
-git clone https://github.com/NvChad/starter ~/.config/nvim 
+echo "export PATH=\"$PATH:/opt/nvim-linux-x86_64/bin\"" >> ~/.bashrc
+git clone https://github.com/NvChad/starter ~/.config/nvim || print_failure "nvim config already exists"
+nvim --headless -c "testing" -c "q!"
 
 clear
 print_success "Neovim and NvChad Installation"
@@ -85,6 +88,25 @@ echo 'export PATH=$HOME/.local/bin:$PATH' >> ~/.bashrc || print_failure "Failed 
 echo 'export PATH=$HOME/.local/bin:$PATH' >> ~/.bashrc || print_failure "Failed to update PATH"
 clear
 print_success "Zed Editor installed"
+
+# -------------------------------------------------------------------
+# Patching snippets 
+# -------------------------------------------------------------------
+print_step "Patching Snippets"
+
+SNIPPETS_URL="https://github.com/AdityaAparadh/Setup/releases/download/alpha/cpp.json"
+TEMP_FILE="/tmp/cpp.json"
+
+curl -L -o "$TEMP_FILE" "$SNIPPETS_URL" || print_failure "Failed to download snippets"
+
+mkdir -p .config/zed/snippets
+cp /tmp/cpp.json  .config/zed/snippets/c++.json
+
+jq -s 'add' ~/.local/share/nvim/lazy/friendly-snippets/snippets/cpp/cpp.json /tmp/cpp.json > ~/.local/share/nvim/lazy/friendly-snippets/snippets/cpp/cpp.json
+rm /tmp/cpp.json
+
+clear
+print_success "Snippets Patched"
 
 
 # -------------------------------------------------------------------

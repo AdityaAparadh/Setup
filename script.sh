@@ -13,6 +13,7 @@ RED="\e[31m"
 YELLOW="\e[33m"
 RESET="\e[0m"
 
+
 print_step() {
     echo -e "${YELLOW}🔄 $1...${RESET}"
 }
@@ -24,17 +25,36 @@ print_failure() {
     exit 1
 }
 
-# -------------------------------------------------------------------
-# Required Packages
-# -------------------------------------------------------------------
+
+# +------------------------------------------------------------------+
+# |		Required Packages				     |			
+# +------------------------------------------------------------------+
+
 print_step "Installing required packages"
-sudo apt update && sudo apt install -y neovim git curl unzip gh dconf-cli || print_failure "Package installation"
+sudo apt update && sudo apt install -y git curl unzip gh dconf-cli ripgrep jq || print_failure "Package installation"
 clear
 print_success "Package installation"
 
 # -------------------------------------------------------------------
-# keyd Installation and Configuration
+# Installing neovim & NvChad
 # -------------------------------------------------------------------
+print_step "Installing neovim"
+
+sudo apt update && sudo apt install -y git curl unzip gh dconf-cli || print_failure "Package installation"
+sudo rm -rf /opt/nvim
+sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz
+export PATH="$PATH:/opt/nvim-linux-x86_64/bin" >> ~/.bashrc
+export PATH="$PATH:/opt/nvim-linux-x86_64/bin" >> ~/.zshrc
+git clone https://github.com/NvChad/starter ~/.config/nvim 
+
+clear
+print_success "Neovim and NvChad Installation"
+
+
+
+# +-------------------------------------------------------------------+
+# |   keyd Installation and Configuration		              |	
+# +-------------------------------------------------------------------+
 print_step "Installing keyd"
 mkdir -p ~/clone && cd ~/clone || print_failure "Failed to create ~/clone directory"
 rm -rf ~/clone/keyd
@@ -55,14 +75,18 @@ sudo keyd reload || print_failure "Failed to reload keyd"
 clear
 print_success "keyd configured"
 
+
 # -------------------------------------------------------------------
 # Zed Editor Installation
 # -------------------------------------------------------------------
 print_step "Installing Zed Editor"
 curl -fsSL https://zed.dev/install.sh | sh || print_failure "Zed installation"
 echo 'export PATH=$HOME/.local/bin:$PATH' >> ~/.bashrc || print_failure "Failed to update PATH"
+echo 'export PATH=$HOME/.local/bin:$PATH' >> ~/.bashrc || print_failure "Failed to update PATH"
 clear
 print_success "Zed Editor installed"
+
+
 # -------------------------------------------------------------------
 # GNOME Keybindings Configuration
 # -------------------------------------------------------------------
@@ -71,6 +95,7 @@ gsettings set org.gnome.shell.extensions.dash-to-dock hot-keys false || print_fa
 for i in $(seq 1 9); do
     gsettings set org.gnome.shell.keybindings switch-to-application-${i} '[]' || print_failure "Failed to unset keybinding for application $i"
 done
+
 
 KEYBINDINGS_URL="https://github.com/AdityaAparadh/Setup/releases/download/alpha/keybindings.dconf"
 TEMP_FILE="/tmp/keybindings.dconf"
